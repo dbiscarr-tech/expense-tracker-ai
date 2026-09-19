@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Download } from "lucide-react";
 import { useExpenses } from "@/context/ExpensesContext";
+import { useToast } from "@/context/ToastContext";
 import { SummaryCards } from "@/components/SummaryCards";
 import { CategoryChart } from "@/components/CategoryChart";
 import { TrendChart } from "@/components/TrendChart";
@@ -11,9 +12,11 @@ import { CategoryBadge } from "@/components/CategoryBadge";
 import { DashboardSkeleton } from "@/components/Skeletons";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { sortByDateDesc } from "@/lib/stats";
+import { downloadCsv, expensesToCsv } from "@/lib/csv";
 
 export default function DashboardPage() {
   const { expenses, isLoaded } = useExpenses();
+  const { showToast } = useToast();
 
   if (!isLoaded) {
     return <DashboardSkeleton />;
@@ -30,9 +33,25 @@ export default function DashboardPage() {
 
   const recent = sortByDateDesc(expenses).slice(0, 5);
 
+  function handleExport() {
+    const csv = expensesToCsv(expenses);
+    const date = new Date().toISOString().slice(0, 10);
+    downloadCsv(`expenses-${date}.csv`, csv);
+    showToast(`Exported ${expenses.length} expense${expenses.length === 1 ? "" : "s"} to CSV.`);
+  }
+
   return (
     <div className="space-y-6">
-      <PageHeader />
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <PageHeader />
+        <button
+          onClick={handleExport}
+          className="flex items-center gap-1.5 self-start rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 sm:self-auto"
+        >
+          <Download className="h-4 w-4" />
+          Export Data
+        </button>
+      </div>
       <SummaryCards expenses={expenses} />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
