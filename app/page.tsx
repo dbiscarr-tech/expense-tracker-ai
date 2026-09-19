@@ -1,7 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, SlidersHorizontal } from "lucide-react";
 import { useExpenses } from "@/context/ExpensesContext";
 import { SummaryCards } from "@/components/SummaryCards";
 import { CategoryChart } from "@/components/CategoryChart";
@@ -9,11 +10,13 @@ import { TrendChart } from "@/components/TrendChart";
 import { EmptyState } from "@/components/EmptyState";
 import { CategoryBadge } from "@/components/CategoryBadge";
 import { DashboardSkeleton } from "@/components/Skeletons";
+import { ExportDrawer } from "@/components/export/ExportDrawer";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { sortByDateDesc } from "@/lib/stats";
 
 export default function DashboardPage() {
   const { expenses, isLoaded } = useExpenses();
+  const [isExportOpen, setIsExportOpen] = useState(false);
 
   if (!isLoaded) {
     return <DashboardSkeleton />;
@@ -32,7 +35,17 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader />
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <PageHeader />
+        <button
+          onClick={() => setIsExportOpen(true)}
+          className="flex items-center gap-1.5 self-start rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 sm:self-auto"
+        >
+          <SlidersHorizontal className="h-4 w-4" />
+          Export Data
+        </button>
+      </div>
+      <ExportDrawer isOpen={isExportOpen} onClose={() => setIsExportOpen(false)} expenses={expenses} />
       <SummaryCards expenses={expenses} />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
