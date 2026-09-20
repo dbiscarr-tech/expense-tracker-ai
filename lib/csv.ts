@@ -1,19 +1,22 @@
 import type { Expense } from "./types";
 
 function escapeCsvField(field: string): string {
-  if (/[",\n]/.test(field)) {
-    return `"${field.replace(/"/g, '""')}"`;
+  // Neutralize leading =, +, -, @ so spreadsheet apps (Excel/Sheets) never
+  // interpret an expense description as a formula ("CSV injection").
+  const safe = /^[=+\-@]/.test(field) ? `'${field}` : field;
+  if (/[",\n]/.test(safe)) {
+    return `"${safe.replace(/"/g, '""')}"`;
   }
-  return field;
+  return safe;
 }
 
 export function expensesToCsv(expenses: Expense[]): string {
-  const header = ["Date", "Category", "Description", "Amount"];
+  const header = ["Date", "Category", "Amount", "Description"];
   const rows = expenses.map((e) => [
     e.date,
     e.category,
-    e.description,
     e.amount.toFixed(2),
+    e.description,
   ]);
   return [header, ...rows]
     .map((row) => row.map(escapeCsvField).join(","))
