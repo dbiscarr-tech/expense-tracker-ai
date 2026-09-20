@@ -35,3 +35,15 @@ export function ExpensesSkeleton() {
     </div>
   );
 }
+
+export function CategoriesSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div>
+        <Pulse className="h-7 w-56" />
+        <Pulse className="mt-2 h-4 w-72" />
+      </div>
+      <Pulse className="h-96" />
+    </div>
+  );
+}
