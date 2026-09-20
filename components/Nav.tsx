@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, ListTree, Plus, Wallet } from "lucide-react";
+import { LayoutDashboard, ListTree, Plus, Store, Wallet } from "lucide-react";
 import { useExpenseModal } from "@/context/ExpenseModalContext";
 
 const links = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/expenses", label: "Expenses", icon: ListTree },
+  { href: "/vendors", label: "Vendors", icon: Store },
 ];
 
 export function Nav() {

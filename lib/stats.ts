@@ -64,6 +64,46 @@ export function getTopCategory(expenses: Expense[]): CategoryTotal | null {
   return totals[0] ?? null;
 }
 
+export interface VendorTotal {
+  vendor: string;
+  total: number;
+  percent: number;
+  count: number;
+}
+
+// Note: the data model has no dedicated "vendor" field. We derive a vendor
+// identity from the free-text `description` field, normalized by trimming
+// whitespace and lowercasing for grouping purposes, while displaying the
+// first-seen original casing/spacing for readability.
+export function getTopVendors(expenses: Expense[], limit?: number): VendorTotal[] {
+  const total = getTotalSpending(expenses);
+  const totals = new Map<string, { display: string; total: number; count: number }>();
+
+  for (const expense of expenses) {
+    const trimmed = expense.description.trim();
+    const key = trimmed.toLowerCase();
+    if (!key) continue;
+    const existing = totals.get(key);
+    if (existing) {
+      existing.total += expense.amount;
+      existing.count += 1;
+    } else {
+      totals.set(key, { display: trimmed, total: expense.amount, count: 1 });
+    }
+  }
+
+  const vendors = Array.from(totals.values())
+    .map(({ display, total: vendorTotal, count }) => ({
+      vendor: display,
+      total: vendorTotal,
+      percent: total > 0 ? (vendorTotal / total) * 100 : 0,
+      count,
+    }))
+    .sort((a, b) => b.total - a.total);
+
+  return typeof limit === "number" ? vendors.slice(0, limit) : vendors;
+}
+
 export interface MonthlyTotal {
   monthKey: string;
   label: string;

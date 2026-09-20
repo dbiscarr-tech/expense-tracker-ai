@@ -35,3 +35,15 @@ export function ExpensesSkeleton() {
     </div>
   );
 }
+
+export function VendorsSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div>
+        <Pulse className="h-7 w-40" />
+        <Pulse className="mt-2 h-4 w-64" />
+      </div>
+      <Pulse className="h-96" />
+    </div>
+  );
+}
